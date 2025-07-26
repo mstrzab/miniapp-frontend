@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useInitData } from '@telegram-apps/sdk-react';
+import { useWebApp } from '@telegram-apps/sdk-react'; // <-- Правильный хук!
 import { useAuthStore } from './store/authStore';
 import api from './api';
 import HomePage from './pages/HomePage';
@@ -7,29 +7,30 @@ import LoginPage from './pages/LoginPage';
 import Spinner from './components/Spinner';
 
 function App() {
-  const initData = useInitData();
+  const webApp = useWebApp(); // Получаем объект webApp
   const { token, setToken, setUser, logout, setLoading, isLoading, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
-    // Эта функция запускается один раз при старте
     const authenticate = async () => {
-      // Сначала проверяем, есть ли у нас уже токен
+      // Получаем сырую строку initData из объекта webApp
+      const rawInitData = webApp?.initData;
+
       if (token) {
         try {
           const response = await api.get('/users/me');
           setUser(response.data);
         } catch (error) {
-          logout(); // Если токен невалидный, выходим
+          logout();
         } finally {
           setLoading(false);
         }
         return;
       }
 
-      // Если токена нет, проверяем, дал ли Telegram initData
-      if (initData) {
+      if (rawInitData) {
         try {
-          const response = await api.post('/auth/telegram', { init_data: new URLSearchParams(initData).toString() });
+          // Отправляем на бэкенд сырую строку, как он и ожидает
+          const response = await api.post('/auth/telegram', { init_data: rawInitData });
           const new_token = response.data.access_token;
           setToken(new_token);
           const userResponse = await api.get('/users/me');
@@ -41,13 +42,15 @@ function App() {
           setLoading(false);
         }
       } else {
-        // Если нет ни токена, ни initData, прекращаем загрузку
         setLoading(false);
       }
     };
 
-    authenticate();
-  }, [initData]); // Запускаем эффект при появлении initData
+    // Запускаем аутентификацию, только когда webApp готов
+    if (webApp) {
+      authenticate();
+    }
+  }, [webApp]); // Запускаем эффект при появлении webApp
 
   if (isLoading) {
     return <Spinner />;
