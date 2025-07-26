@@ -1,4 +1,3 @@
-import { useAuthStore } from '../store/authStore';
 
 const HomePage = () => {
   const { user } = useAuthStore();

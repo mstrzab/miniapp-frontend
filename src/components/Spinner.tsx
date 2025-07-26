@@ -1,4 +1,3 @@
-
 const Spinner = () => (
   <div style={{
     display: 'flex',

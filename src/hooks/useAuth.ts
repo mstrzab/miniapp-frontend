@@ -5,14 +5,7 @@ import api from '../api';
 
 export const useAuth = () => {
   const { initData } = useWebApp();
-  const { 
-    token, 
-    setToken, 
-    setUser, 
-    logout, 
-    setLoading 
-  } = useAuthStore();
-
+  const { token, setToken, setUser, logout, setLoading } = useAuthStore();
   useEffect(() => {
     const authenticate = async () => {
       if (token) {
@@ -26,12 +19,9 @@ export const useAuth = () => {
         }
         return;
       }
-
       if (initData) {
         try {
-          const response = await api.post('/auth/telegram', {
-            init_data: initData,
-          });
+          const response = await api.post('/auth/telegram', { init_data: initData });
           const new_token = response.data.access_token;
           setToken(new_token);
           const userResponse = await api.get('/users/me');
@@ -46,10 +36,8 @@ export const useAuth = () => {
         setLoading(false);
       }
     };
-
     authenticate();
   }, []);
-
   return useAuthStore((state) => ({
     isLoading: state.isLoading,
     isAuthenticated: state.isAuthenticated,
