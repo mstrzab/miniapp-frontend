@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { UseWebApp } from '@telegram-apps/sdk-react';
+import { useWebApp } from '@telegram-apps/sdk-react';
 import { useAuthStore } from '../store/authStore';
 import api from '../api';
 
