@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useWebApp } from '@telegram-apps/sdk-react'; // <-- Правильный хук!
+import { useWebApp } from '@telegram-apps/sdk-react';
 import { useAuthStore } from './store/authStore';
 import api from './api';
 import HomePage from './pages/HomePage';
@@ -7,12 +7,11 @@ import LoginPage from './pages/LoginPage';
 import Spinner from './components/Spinner';
 
 function App() {
-  const webApp = useWebApp(); // Получаем объект webApp
+  const webApp = useWebApp();
   const { token, setToken, setUser, logout, setLoading, isLoading, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     const authenticate = async () => {
-      // Получаем сырую строку initData из объекта webApp
       const rawInitData = webApp?.initData;
 
       if (token) {
@@ -29,7 +28,6 @@ function App() {
 
       if (rawInitData) {
         try {
-          // Отправляем на бэкенд сырую строку, как он и ожидает
           const response = await api.post('/auth/telegram', { init_data: rawInitData });
           const new_token = response.data.access_token;
           setToken(new_token);
@@ -46,11 +44,10 @@ function App() {
       }
     };
 
-    // Запускаем аутентификацию, только когда webApp готов
     if (webApp) {
       authenticate();
     }
-  }, [webApp]); // Запускаем эффект при появлении webApp
+  }, [webApp]);
 
   if (isLoading) {
     return <Spinner />;
