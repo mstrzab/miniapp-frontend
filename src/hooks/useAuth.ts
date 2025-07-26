@@ -4,13 +4,9 @@ import { useAuthStore } from '../store/authStore';
 import api from '../api';
 
 export const useAuth = () => {
-  const { initData } = useWebApp();
+  const { initData } = useWebApp() || {};
   const { 
-    token, 
-    setToken, 
-    setUser, 
-    logout, 
-    setLoading 
+    token, setToken, setUser, logout, setLoading 
   } = useAuthStore();
 
   useEffect(() => {
@@ -19,19 +15,13 @@ export const useAuth = () => {
         try {
           const response = await api.get('/users/me');
           setUser(response.data);
-        } catch (error) {
-          logout();
-        } finally {
-          setLoading(false);
-        }
+        } catch (error) { logout(); } 
+        finally { setLoading(false); }
         return;
       }
-
       if (initData) {
         try {
-          const response = await api.post('/auth/telegram', {
-            init_data: initData,
-          });
+          const response = await api.post('/auth/telegram', { init_data: initData });
           const new_token = response.data.access_token;
           setToken(new_token);
           const userResponse = await api.get('/users/me');
@@ -39,14 +29,11 @@ export const useAuth = () => {
         } catch (error) {
           console.error('Authentication failed', error);
           logout();
-        } finally {
-          setLoading(false);
-        }
+        } finally { setLoading(false); }
       } else {
         setLoading(false);
       }
     };
-
     authenticate();
   }, []);
 
